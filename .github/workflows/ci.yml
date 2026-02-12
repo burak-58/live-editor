@@ -76,17 +76,7 @@ jobs:
           echo "Local version: ${LOCAL_VERSION}"
 
           APPS_JSON="$(curl -fsS -u "${AMS_USER}:${AMS_PASSWORD}" "${REST_BASE}/applications")"
-          APP_EXISTS="$(echo "${APPS_JSON}" | python - <<'PY'
-import json
-import os
-import sys
-
-data = json.loads(sys.stdin.read())
-apps = data.get("applications", [])
-app_name = os.environ.get("APP_NAME")
-print("true" if app_name in apps else "false")
-PY
-)"
+          APP_EXISTS="$(python -c 'import json,os,sys; data=json.loads(sys.stdin.read()); apps=data.get("applications", []); print("true" if os.environ.get("APP_NAME") in apps else "false")' <<< "${APPS_JSON}")"
 
           REMOTE_VERSION="$(curl -fsS "${APP_URL}/version.txt" || true)"
           echo "Remote version: ${REMOTE_VERSION:-<none>}"
