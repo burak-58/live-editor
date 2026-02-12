@@ -75,7 +75,12 @@ jobs:
 
           echo "Local version: ${LOCAL_VERSION}"
 
-          APPS_JSON="$(curl -fsS -u "${AMS_USER}:${AMS_PASSWORD}" "${REST_BASE}/applications")"
+          COOKIE_JAR="$(mktemp)"
+          AUTH_PAYLOAD="$(python -c 'import json,os; print(json.dumps({"email": os.environ.get("AMS_USER"), "password": os.environ.get("AMS_PASSWORD")}))')"
+          curl -fsS -c "${COOKIE_JAR}" -H "Content-Type: application/json" \
+            -X POST -d "${AUTH_PAYLOAD}" "${REST_BASE}/users/authenticate"
+
+          APPS_JSON="$(curl -fsS -b "${COOKIE_JAR}" "${REST_BASE}/applications")"
           APP_EXISTS="$(python -c 'import json,os,sys; data=json.loads(sys.stdin.read()); apps=data.get("applications", []); print("true" if os.environ.get("APP_NAME") in apps else "false")' <<< "${APPS_JSON}")"
 
           REMOTE_VERSION="$(curl -fsS "${APP_URL}/version.txt" || true)"
@@ -83,7 +88,7 @@ jobs:
 
           if [[ "${APP_EXISTS}" != "true" || "${REMOTE_VERSION}" != "${LOCAL_VERSION}" ]]; then
             echo "Deploying ${APP_NAME}..."
-            curl -fsS -u "${AMS_USER}:${AMS_PASSWORD}" \
+            curl -fsS -b "${COOKIE_JAR}" \
               -X PUT -F "file=@target/live-editor.war" \
               "${REST_BASE}/applications/${APP_NAME}"
           else
