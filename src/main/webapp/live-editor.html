@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Live Editor</title>
+		<link rel="stylesheet" href="css/live-editor.css" />
+	</head>
+	<body>
+		<div class="app">
+			<aside class="panel">
+				<h2>Live Editor</h2>
+				<section>
+					<label for="streamId">Stream ID</label>
+					<input id="streamId" type="text" placeholder="live-editor-stream" />
+					<div class="toolbar" style="margin-top:10px;">
+						<button id="startPublish">Start Publishing</button>
+						<button id="stopPublish" class="secondary" disabled>Stop</button>
+						<button id="openPlayer" class="secondary">Open Player</button>
+					</div>
+					<div class="help" id="publishStatus">Idle</div>
+				</section>
+
+				<section>
+					<label>Stage Size</label>
+					<select id="stageSize">
+						<option value="1280x720">1280 x 720 (HD)</option>
+						<option value="1920x1080">1920 x 1080 (Full HD)</option>
+						<option value="960x540">960 x 540</option>
+					</select>
+					<div class="toolbar" style="margin-top:10px;">
+						<button id="fitStage" class="secondary">Fit Stage</button>
+						<button id="clearStage" class="danger">Clear All</button>
+					</div>
+				</section>
+
+				<section>
+					<label>Add Sources</label>
+					<div class="toolbar">
+						<button id="addCamera">Camera</button>
+						<button id="addScreen">Screen Share</button>
+						<button id="addMediaUrl" class="secondary">Media URL</button>
+						<button id="addLocalMedia" class="secondary">Local Media</button>
+						<button id="addLiveStream" class="secondary">Live Stream</button>
+						<button id="addText" class="secondary">Text</button>
+						<button id="addImage" class="secondary">Image URL</button>
+						<button id="addLocalImage" class="secondary">Local Image</button>
+					</div>
+					<input type="file" id="localMediaInput" accept="video/*,audio/*" hidden />
+					<input type="file" id="imageInput" accept="image/*" hidden />
+				</section>
+
+				<section>
+					<label>Layers</label>
+					<div id="layersList" class="layers"></div>
+				</section>
+
+				<section>
+					<label>Selected Layer</label>
+					<div class="help" id="selectedLayerInfo">None</div>
+					<div style="margin-top:10px;">
+						<label for="layerX">X</label>
+						<input id="layerX" type="number" />
+						<label for="layerY">Y</label>
+						<input id="layerY" type="number" />
+						<label for="layerW">Width</label>
+						<input id="layerW" type="number" />
+						<label for="layerH">Height</label>
+						<input id="layerH" type="number" />
+					</div>
+					<div style="margin-top:10px;">
+						<label for="layerText">Text</label>
+						<textarea id="layerText" placeholder="Edit text layer"></textarea>
+						<label for="layerFontSize">Font Size</label>
+						<input id="layerFontSize" type="number" min="10" max="120" />
+						<label for="layerColor">Color</label>
+						<input id="layerColor" type="color" />
+					</div>
+					<div class="toolbar" style="margin-top:10px;">
+						<button id="bringForward" class="secondary">Bring Forward</button>
+						<button id="sendBackward" class="secondary">Send Backward</button>
+						<button id="toggleMute" class="secondary">Mute/Unmute</button>
+						<button id="deleteLayer" class="danger">Delete</button>
+					</div>
+				</section>
+
+				<section>
+					<label>Preview</label>
+					<video id="previewVideo" class="preview" autoplay muted playsinline></video>
+					<div class="help">Preview is the composed stage stream.</div>
+				</section>
+			</aside>
+
+			<main class="stage-wrapper">
+				<div class="stage-header">
+					<div class="status" id="statusText">Click a layer to move. Drag bottom-right corner to resize.</div>
+					<div class="status">Tip: Shift+drag to keep aspect ratio.</div>
+				</div>
+				<div class="stage" id="stageContainer">
+					<canvas id="stageCanvas" width="1280" height="720"></canvas>
+				</div>
+			</main>
+		</div>
+		<div id="hiddenMedia" class="hidden-media" aria-hidden="true"></div>
+
+		<script type="module" src="js/live-editor.js"></script>
+	</body>
+</html>

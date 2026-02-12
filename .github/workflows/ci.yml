@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Run JS tests
+        run: npm test
+
+      - name: Run Maven tests and package
+        run: mvn -B package
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-editor-war
+          path: target/live-editor.war
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    env:
+      AMS_SERVER_URL: ${{ secrets.AMS_SERVER_URL }}
+      AMS_USER: ${{ secrets.AMS_USER }}
+      AMS_PASSWORD: ${{ secrets.AMS_PASSWORD }}
+      APP_NAME: live-edit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download WAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: live-editor-war
+          path: target
+
+      - name: Deploy WAR if needed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${AMS_SERVER_URL}" || -z "${AMS_USER}" || -z "${AMS_PASSWORD}" ]]; then
+            echo "Missing AMS_SERVER_URL/AMS_USER/AMS_PASSWORD secrets"
+            exit 1
+          fi
+
+          BASE_URL="${AMS_SERVER_URL%/}"
+          REST_BASE="${BASE_URL}/rest/v2"
+          APP_URL="${BASE_URL}/${APP_NAME}"
+          LOCAL_VERSION="$(cat src/main/webapp/version.txt)"
+
+          echo "Local version: ${LOCAL_VERSION}"
+
+          APPS_JSON="$(curl -fsS -u "${AMS_USER}:${AMS_PASSWORD}" "${REST_BASE}/applications")"
+          APP_EXISTS="$(echo "${APPS_JSON}" | python - <<'PY'
+import json
+import os
+import sys
+
+data = json.loads(sys.stdin.read())
+apps = data.get("applications", [])
+app_name = os.environ.get("APP_NAME")
+print("true" if app_name in apps else "false")
+PY
+)"
+
+          REMOTE_VERSION="$(curl -fsS "${APP_URL}/version.txt" || true)"
+          echo "Remote version: ${REMOTE_VERSION:-<none>}"
+
+          if [[ "${APP_EXISTS}" != "true" || "${REMOTE_VERSION}" != "${LOCAL_VERSION}" ]]; then
+            echo "Deploying ${APP_NAME}..."
+            curl -fsS -u "${AMS_USER}:${AMS_PASSWORD}" \
+              -X PUT -F "file=@target/live-editor.war" \
+              "${REST_BASE}/applications/${APP_NAME}"
+          else
+            echo "No deploy needed."
+          fi

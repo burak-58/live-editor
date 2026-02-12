@@ -1,0 +1,244 @@
+:root {
+	--bg: #0b0f16;
+	--surface: #141a26;
+	--surface-2: #1a2332;
+	--border: #273044;
+	--text: #e9edf5;
+	--muted: #9aa6bf;
+	--accent: #5b7cfa;
+	--accent-2: #7c5cfa;
+	--danger: #d26464;
+	--success: #2ecc71;
+	--shadow: 0 14px 30px rgba(6, 11, 20, 0.55);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	background: radial-gradient(circle at top, #111a2b 0%, #0b0f16 45%);
+	color: var(--text);
+}
+
+.app {
+	display: grid;
+	grid-template-columns: 320px 1fr;
+	min-height: 100vh;
+}
+
+.panel {
+	background: linear-gradient(180deg, rgba(23, 30, 45, 0.92), rgba(14, 20, 31, 0.98));
+	padding: 20px;
+	border-right: 1px solid var(--border);
+	box-shadow: var(--shadow);
+	backdrop-filter: blur(12px);
+}
+
+.panel h2 {
+	margin: 0 0 14px 0;
+	font-size: 20px;
+	letter-spacing: 0.2px;
+}
+
+.panel section {
+	margin-bottom: 18px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--border);
+}
+
+.panel label {
+	display: block;
+	font-size: 12px;
+	margin-bottom: 6px;
+	color: var(--muted);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.panel input[type="text"],
+.panel input[type="number"],
+.panel input[type="color"],
+.panel select,
+.panel textarea {
+	width: 100%;
+	background: rgba(10, 14, 22, 0.9);
+	border: 1px solid var(--border);
+	color: var(--text);
+	padding: 9px 10px;
+	border-radius: 10px;
+	font-size: 13px;
+}
+
+.panel textarea {
+	min-height: 70px;
+	resize: vertical;
+}
+
+.panel button {
+	background: linear-gradient(135deg, var(--accent), var(--accent-2));
+	border: none;
+	color: #fff;
+	padding: 9px 14px;
+	border-radius: 10px;
+	cursor: pointer;
+	margin-right: 6px;
+	margin-bottom: 6px;
+	font-size: 13px;
+	box-shadow: 0 10px 24px rgba(91, 124, 250, 0.25);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.panel button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 12px 26px rgba(91, 124, 250, 0.32);
+}
+
+.panel button.secondary {
+	background: var(--surface-2);
+	color: var(--text);
+	box-shadow: none;
+}
+
+.panel button.danger {
+	background: var(--danger);
+}
+
+.panel button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.stage-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 24px;
+	gap: 18px;
+	overflow: hidden;
+}
+
+.stage-header {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.stage-header .status {
+	font-size: 13px;
+	color: #9bb5ff;
+}
+
+.stage {
+	background: #000;
+	border: 1px solid var(--border);
+	border-radius: 16px;
+	overflow: hidden;
+	position: relative;
+	box-shadow: var(--shadow);
+	max-width: 100%;
+}
+
+#stageContainer {
+	margin-top: 4px;
+}
+
+#stageCanvas {
+	max-width: 100%;
+	height: auto;
+}
+
+canvas {
+	display: block;
+}
+
+.layers {
+	max-height: 220px;
+	overflow-y: auto;
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	padding: 8px;
+	background: rgba(12, 16, 26, 0.6);
+}
+
+.layer-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px;
+	border-radius: 10px;
+	margin-bottom: 6px;
+	background: #121927;
+	border: 1px solid transparent;
+	font-size: 12px;
+}
+
+.layer-item.active {
+	border-color: var(--accent);
+	background: #1a2436;
+}
+
+.layer-controls button {
+	padding: 4px 6px;
+	font-size: 11px;
+	margin: 0 2px;
+}
+
+.toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.muted {
+	color: #d58a8a;
+}
+
+.help {
+	font-size: 12px;
+	color: var(--muted);
+	line-height: 1.4;
+}
+
+.preview {
+	width: 280px;
+	background: #000;
+	border-radius: 12px;
+	border: 1px solid var(--border);
+	box-shadow: var(--shadow);
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	background: rgba(91, 124, 250, 0.15);
+	color: var(--accent);
+}
+
+.badge.success {
+	background: rgba(46, 204, 113, 0.15);
+	color: var(--success);
+}
+
+.hidden-media {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.hidden-media video {
+	width: 1px;
+	height: 1px;
+}

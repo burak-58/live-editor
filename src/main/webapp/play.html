@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Ant Media Server WebRTC Player</title>
+	<link href="css/player.css" rel="stylesheet">
+	<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+</head>
+
+<body>
+
+	<div id="video_info">
+		Your live stream will play automatically as soon as it's available. <br />Get ready to be part of the action!
+	</div>
+
+	<div id="video_container">
+		<video id='video-player' class='video-js vjs-default-skin vjs-big-play-centered' controls playsinline></video>
+	</div>
+
+	<div id="networkWarning">Your connection isn't fast enough to play this stream!</div>
+
+	<script type="module">
+		import { WebRTCAdaptor } from "./js/webrtc_adaptor.js";
+		import { getUrlParameter } from "./js/fetch.stream.js";
+		import { getWebSocketURL, errorHandler } from "./js/utility.js";
+
+		const videoPlayer = document.getElementById("video-player");
+		const videoInfo = document.getElementById("video_info");
+		const videoContainer = document.getElementById("video_container");
+
+		const streamId = getUrlParameter("id");
+		const token = getUrlParameter("token");
+		const subscriberId = getUrlParameter("subscriberId");
+		const subscriberCode = getUrlParameter("subscriberCode");
+
+		const websocketURL = getWebSocketURL(window.location);
+		const adaptor = new WebRTCAdaptor({
+			websocket_url: websocketURL,
+			isPlayMode: true,
+			remoteVideoElement: videoPlayer,
+			debug: false,
+			callback: (info) => {
+				if (info === "initialized" && streamId) {
+					adaptor.play(streamId, token, "", [], subscriberId, subscriberCode);
+				} else if (info === "play_started" || info === "newStreamAvailable") {
+					videoInfo.style.display = "none";
+					videoContainer.style.display = "block";
+				} else if (info === "play_finished") {
+					videoContainer.style.display = "none";
+					videoInfo.style.display = "block";
+				}
+			},
+			callbackError: (error, message) => {
+				console.error(errorHandler(error, message));
+			},
+		});
+	</script>
+</body>
+
+</html>
